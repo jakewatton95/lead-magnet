@@ -1,0 +1,19 @@
+{
+  "name": "lead-magnet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jakewatton95/lead-magnet.git"
+  },
+  "author": "Jake Watton",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jakewatton95/lead-magnet/issues"
+  },
+  "homepage": "https://github.com/jakewatton95/lead-magnet#readme"
+}
