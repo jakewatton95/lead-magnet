@@ -1,4 +1,18 @@
-import React from 'react';
-const App = ({ title }) =>
-  <div>{title}</div>;
-export default App;
+import React, {Component} from 'react'
+
+class App extends Component {
+  constructor(props){
+    super(props)
+    this.state ={
+
+    }
+  }
+
+  render() {
+    return (
+      <div> {this.props.title} </div>
+    )
+  }
+
+}
+export default App
