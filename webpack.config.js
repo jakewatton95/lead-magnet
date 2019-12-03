@@ -10,6 +10,13 @@ module.exports = {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: ['babel-loader']
+      } ,
+      {
+        test: /\.css$/,
+        use: [
+            { loader: 'style-loader', options: { injectType: 'singletonStyleTag' } },
+            { loader: 'css-loader', options: { importLoaders: 1, sourceMap: true } }
+        ]
       }
     ]
   },
