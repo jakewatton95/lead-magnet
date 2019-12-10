@@ -22,7 +22,7 @@ class NetworkSpeedComp extends Component{
                 <Modal.Body>
                     <Form onSubmit={e => { e.preventDefault(); }}>
                         <Form.Group>
-                            <Form.Label>11. Will users need to access files during the migration</Form.Label>
+                            <Form.Label>11. Will users need to access files during the migration?</Form.Label>
                             <Form.Control as="select" onChange={this.handleChange} value = {this.props.userAccess}>
                                 <option disabled="disabled" value=''>---Select an option---</option>
                                 {accesses.map(access => <option key={access.id} value={access.id}> {access.name} </option>)}

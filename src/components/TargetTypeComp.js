@@ -23,7 +23,7 @@ class TargetTypeComp extends Component{
         return (
             <React.Fragment>
                 <Modal.Body>
-                <label> 5. Brand of Target Storage: </label>
+                <label> 5. What is the brand of your target storage appliance? </label>
                             <br/>
                 <label> Select all that apply</label>
                     <Form onSubmit={e => { e.preventDefault(); }}>

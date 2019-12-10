@@ -20,7 +20,7 @@ class MigrationForm extends Component{
         super(props)
         this.state= {
             modalShow : true,
-            slideNumber: 11,
+            slideNumber: 0,
             userEmail: '',
             migrationSize: '',
             numFiles: '',
