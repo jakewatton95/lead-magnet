@@ -3,3 +3,8 @@
     color: gray;
     margin: auto;
 }
+
+.errorNote{
+    margin: auto;
+    color: red;
+}

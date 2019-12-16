@@ -13,12 +13,14 @@ import NetworkUtilComp from '../components/NetworkUtilComp'
 import UserAccessComp from '../components/UserAccessComp'
 import EmailEntryComp from '../components/EmailEntryComp'
 import FinalSlideComp from '../components/FinalSlideComp'
+import ReportBlurbs from '../data/reportGenerationData'
 import './MigrationForm.css'
 
 class MigrationForm extends Component{
     constructor(props){
         super(props)
         this.state= {
+            errorState: false,
             modalShow : true,
             slideNumber: 0,
             userEmail: '',
@@ -27,12 +29,17 @@ class MigrationForm extends Component{
             numDirectories: '',
             sourceTypes: [],
             targetTypes: [],
-            protocolTypes: [],
+            protocolType: '',
             complianceTypes: [],
+            usingSecurity: '',
             security: '',
             networkSpeed: '',
             networkUtilization: '',
-            userAccess: ''
+            userAccess: '',
+            dataLossSources: {},
+            overTimeSources: {},
+            overBudgetSources: {},
+            complianceSources: [],
         }
         this.handleChange = this.handleChange.bind(this)
         this.handleModalClose = this.handleModalClose.bind(this)
@@ -41,6 +48,16 @@ class MigrationForm extends Component{
         this.submitAnswers = this.submitAnswers.bind(this)
         this.submitEmail = this.submitEmail.bind(this)
         this.validateEmail = this.validateEmail.bind(this)
+        this.hasError = this.hasError.bind(this)
+        this.calculateComplianceScore = this.calculateComplianceScore.bind(this)
+        this.calculateDataLossScore = this.calculateDataLossScore.bind(this)
+        this.calculateOverBudgetScore = this.calculateOverBudgetScore.bind(this)
+        this.calculateOverTimeScore = this.calculateOverTimeScore.bind(this)
+        this.generateReport = this.generateReport.bind(this)
+        this.generateComplianceBlurb = this.generateComplianceBlurb.bind(this)
+        this.generateDataLossBlurb = this.generateDataLossBlurb.bind(this)
+        this.generateOverBudgetBlurb = this.generateOverBudgetBlurb.bind(this)
+        this.generateOverTimeBlurb = this.generateOverTimeBlurb.bind(this)
     }
 
     handleModalClose(){
@@ -51,7 +68,6 @@ class MigrationForm extends Component{
 
     handleChange(e){
         let {id, value} = e.target
-        console.log(e.target)
         if (id == 'migrationSize') {
             this.setState({
                 migrationSize: value
@@ -84,15 +100,9 @@ class MigrationForm extends Component{
             this.setState({
                 targetTypes: newSources
             })
-        } else if (id == 'protocolTypes'){
-            let newSources = [...this.state.protocolTypes]
-            if (e.target.value){
-                newSources.push(e.target.type)
-            } else {
-                newSources = newSources.filter(id => id != e.target.type)                
-            }
+        } else if (id == 'protocolType'){
             this.setState({
-                protocolTypes: newSources
+                protocolType: value
             })
         } else if (id == 'complianceTypes'){
             let newSources = [...this.state.complianceTypes]
@@ -103,6 +113,10 @@ class MigrationForm extends Component{
             }
             this.setState({
                 complianceTypes: newSources
+            })
+        } else if (id == 'usingSecurity'){
+            this.setState({
+                usingSecurity: value
             })
         } else if (id == 'security') {
             this.setState({
@@ -134,9 +148,9 @@ class MigrationForm extends Component{
             case 2: return <DirectoriesComp handleChange={this.handleChange} numDirectories = {this.state.numDirectories}/>
             case 3: return <SourceTypeComp handleChange={this.handleChange} sourceTypes = {this.state.sourceTypes}/>
             case 4: return <TargetTypeComp handleChange={this.handleChange} targetTypes = {this.state.targetTypes}/>
-            case 5: return <ProtocolTypeComp handleChange={this.handleChange} protocolTypes = {this.state.protocolTypes}/>
+            case 5: return <ProtocolTypeComp handleChange={this.handleChange} protocolType = {this.state.protocolType}/>
             case 6: return <ComplianceComp handleChange={this.handleChange} complianceTypes = {this.state.complianceTypes}/>
-            case 7: return <SecurityComp handleChange={this.handleChange} security = {this.state.security}/>
+            case 7: return <SecurityComp handleChange={this.handleChange} usingSecurity = {this.state.usingSecurity} security = {this.state.security}/>
             case 8: return <NetworkSpeedComp handleChange={this.handleChange} networkSpeed = {this.state.networkSpeed}/>
             case 9: return <NetworkUtilComp handleChange={this.handleChange} networkUtilization = {this.state.networkUtilization}/>
             case 10: return <UserAccessComp handleChange={this.handleChange} userAccess = {this.state.userAccess}/>
@@ -145,37 +159,239 @@ class MigrationForm extends Component{
         }
     }
 
+    hasError(slideNum){
+        switch(slideNum){
+            case 0: return (this.state.migrationSize == '')
+            case 1: return false
+            case 2: return false
+            case 3: return (this.state.sourceTypes.length == 0)
+            case 4: return (this.state.targetTypes.length == 0)
+            case 5: return (this.state.protocolType == '')
+            case 6: return (this.state.complianceTypes.length == 0)
+            case 7: return (this.state.usingSecurity == '')
+            case 8: return (this.state.networkSpeed == '')
+            case 9: return false
+            case 10: return (this.state.userAccess == '')
+            case 11: return false
+            default: return false
+        }
+    }
+
     nextSlide() {
-        let newNumber = this.state.slideNumber + 1
+        if (this.hasError(this.state.slideNumber)){
+            this.setState({
+                errorState: true
+            })
+            return false
+        } else {
+            let newNumber = this.state.slideNumber + 1
+            this.setState({
+                slideNumber: newNumber,
+                errorState: false
+            })
+            return true
+        }
+    }
+
+    async calculateComplianceScore() {
+        let {complianceTypes, userAccess, usingSecurity} = this.state
+        let compSource = []
+        let score = 0
+        if (!complianceTypes.includes("7")){
+            score++
+            compSource.push({key: "complianceTypes", value: complianceTypes})
+        }
+        if (userAccess == 1){
+            score++
+            compSource.push({key:"userAccess", value:userAccess})
+        }
+        if (usingSecurity == 1) {
+            score++
+            compSource.push({key: "usingSecurity",  value:usingSecurity})
+        }
         this.setState({
-            slideNumber: newNumber
+            complianceSources: compSource,
+            complianceScore: score
+        })
+        console.log("Done Calculating Compliance Score")
+
+    }
+
+    async calculateDataLossScore(){
+        let {migrationSize, userAccess, usingSecurity} = this.state
+        let dlSource = {"migrationSize": migrationSize, "userAccess": userAccess, "usingSecurity": usingSecurity}
+        let score = 0
+        if (migrationSize >= 100) {
+            score++
+        }
+        if (userAccess == 1) {
+            score++
+        }
+        if (usingSecurity == 1) {
+            score++
+        }
+        this.setState({
+            dataLossSources: dlSource,
+            dataLossScore: score
+        })
+        console.log("Done Calculating DataLoss Score")
+    }
+
+    async calculateOverBudgetScore(){
+        let {migrationSize, usingSecurity, complianceTypes} = this.state
+        let obSource = {"migrationSize": migrationSize, "usingSecurity": usingSecurity, "complianceTypes": complianceTypes}
+        let score = 0
+        if (migrationSize >= 100) {
+            score++
+        }
+        if (!complianceTypes.includes("7")) {
+            score++
+        }
+        if (usingSecurity == 1) {
+            score++
+        }
+        this.setState({
+            overBudgetSources: obSource,
+            overBudgetScore: score
+        })
+        console.log("Done Calculating OverBudget Score")
+    }
+
+    async calculateOverTimeScore(){
+        let {migrationSize, usingSecurity, complianceTypes, userAccess, protocolType, networkSpeed} = this.state
+        let otSource = {"migrationSize": migrationSize, "usingSecurity": usingSecurity, "complianceTypes": complianceTypes, "userAccess":userAccess, "protocolType":protocolType, "networkSpeed": networkSpeed}
+        let score = 0
+        if (migrationSize >= 100) {
+            score++
+        }
+        if (!complianceTypes.includes("7")) {
+            score++
+        }
+        if (usingSecurity == 1) {
+            score++
+        }
+        if (userAccess == 1) {
+            score++
+        }
+        if (protocolType == 3) {
+            score++
+        }
+        if (networkSpeed < 3) {
+            score++
+        }
+        this.setState({
+            overTimeSources: otSource,
+            overTimeScore: score
+        })
+        console.log("Done Calculating OverTime Score")
+
+    }
+
+    //compSource = [{key:"complianceTypes", value:complianceTypes}, {"userAccess": userAccess}, {"usingSecurity": usingSecurity}]
+    //
+    async generateComplianceBlurb(){
+        let {complianceSources} = this.state
+        let complianceObjects = ReportBlurbs.find(blurb => blurb.id == "compliance").blurbs
+        let finalBlurb = "Compliance \n\n"
+        console.log(complianceObjects)
+
+        complianceSources.forEach(source => {
+            let blurbObj = complianceObjects.find(blurb => blurb.triggerType == source.key)
+            finalBlurb += blurbObj.excerpt
+
+
+            //we do our checking when we generate compliance sources so not sure this is necessary
+            /*if (source.key == "complianceTypes"){
+                for (let i = 0; i < blurbObj.triggerValue.length; i++){
+                    if (!source.value.includes(blurbObj.triggerValue[i])){
+                        finalBlurb += blurbObj.excerpt
+                        break;
+                    }
+                }
+            } else {
+                if (blurbObj.triggerValue == source.value)
+                    finalBlurb += blurbObj.excerpt
+            }*/
+        })
+        
+
+        //
+        //let html = ReportBlurbs.filter(blurb => blurb.id == "compliance").reduce(blurb =>  "")
+        //alert(finalBlurb)
+
+        return finalBlurb
+    }
+
+    async generateDataLossBlurb(){
+        alert("data Loss")
+    }
+
+    async generateOverBudgetBlurb(){
+        alert("over budget")
+    }
+
+    async generateOverTimeBlurb(){
+        alert("over time")
+    }
+
+    async generateReport(){
+        let {complianceTypes, complianceScore, dataLossScore, overBudgetScore, overTimeScore} = this.state
+        let html = "<h1>Your Vulnerability Report</h1>\n"
+        if (complianceScore > 1 || !(complianceTypes.includes("7") || complianceTypes.includes("6"))){
+            html += await this.generateComplianceBlurb()
+            //add Compliance Blurb
+        }
+        if (dataLossScore > 1) {
+            html += await this.generateDataLossBlurb()
+            //add Data Loss Blurb
+        }
+        if (overBudgetScore > 1) {
+            html += await this.generateOverBudgetBlurb()
+            //add Over Budget Blurb
+        }
+        if (overTimeScore > 2) {
+            html += await this.generateOverTimeBlurb()
+            //add Over Time Blurb
+        }
+
+        this.setState({
+            htmlReport: html
         })
     }
 
-    submitAnswers(){
-        //check for errors
-        //store in DB without userinfo just to have 
-        //ask for email to add to DB and hubspot
-        this.nextSlide()
-
+    async submitAnswers(){
+        if (this.nextSlide()){ 
+            //calculate scores
+            await this.calculateDataLossScore()
+            await this.calculateComplianceScore()
+            await this.calculateOverTimeScore()
+            await this.calculateOverBudgetScore()
+            console.log(this.state)
+            console.log("ScoresShouldBeCalculated")            
+            //generate report
+            this.generateReport()
+        }
     }
 
     validateEmail(){
         let {userEmail} = this.state
         if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userEmail))
         {
-           return (true)
+           return true
         }
-           return (false)
+           return false
     } 
 
     submitEmail(){
         //send email
+        let {htmlReport, userEmail} = this.state
         if (this.validateEmail()){
-            const fullURL = "https://ffmn88dla3.execute-api.us-east-1.amazonaws.com/dev/vulnemail?email="+this.state.userEmail
-            fetch(fullURL, {method: "POST"})
+            let urlObj = {method: "POST", body: JSON.stringify({html: htmlReport})}
+            console.log(urlObj)
+            const fullURL = "https://ffmn88dla3.execute-api.us-east-1.amazonaws.com/dev/vulnemail?email=" + userEmail            
+            fetch(fullURL, urlObj)
             .then(response => {
-                this.nextSlide()
+                //this.nextSlide()
             })
             .catch(err => {
                 console.log("ERR: " + err)
@@ -184,6 +400,8 @@ class MigrationForm extends Component{
         } else {
             alert("Please enter an email address in the correct format: name@website.com")
         }
+        //TODO store information in DB
+        //TODO maybe set up hubspot integration in lambda or something
     }
 
 
@@ -203,9 +421,9 @@ class MigrationForm extends Component{
                 <Modal.Header>
                     <Modal.Title>Discover Your Vulnerabilities</Modal.Title>
                 </Modal.Header>
+                {this.state.errorState && <div className = "errorNote">There is an error in your response, please fix before proceeding.</div>}
                 {this.renderSwitch(slideNumber)}
                 {this.state.slideNumber < 12 && <ProgressBar striped variant="success" now={now} label={`${now}%`} />}
-                <div className='infoNote'>Note: You may skip over questions, but you will need to fill out all required information before submitting.</div>
                 <Modal.Footer>
                     {slideNumber > 0 && slideNumber < 12 && <Button variant="secondary" onClick = {this.prevSlide}>Previous</Button>}
                     {slideNumber < 10 && <Button variant = "primary" onClick = {this.nextSlide}> Next </Button>}
@@ -213,6 +431,7 @@ class MigrationForm extends Component{
                     {slideNumber == 11 && <Button variant = "success" onClick = {this.submitEmail}> Get My Results!</Button>}
                 </Modal.Footer>
             </Modal>
+            <div> {this.state.htmlReport}</div>
         </React.Fragment>
         )
     }
