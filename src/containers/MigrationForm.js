@@ -36,9 +36,9 @@ class MigrationForm extends Component{
             networkSpeed: '',
             networkUtilization: '',
             userAccess: '',
-            dataLossSources: {},
-            overTimeSources: {},
-            overBudgetSources: {},
+            dataLossSources: [],
+            overTimeSources: [],
+            overBudgetSources: [],
             complianceSources: [],
         }
         this.handleChange = this.handleChange.bind(this)
@@ -219,16 +219,19 @@ class MigrationForm extends Component{
 
     async calculateDataLossScore(){
         let {migrationSize, userAccess, usingSecurity} = this.state
-        let dlSource = {"migrationSize": migrationSize, "userAccess": userAccess, "usingSecurity": usingSecurity}
+        let dlSource = []//{"migrationSize": migrationSize, "userAccess": userAccess, "usingSecurity": usingSecurity}
         let score = 0
         if (migrationSize >= 100) {
             score++
+            dlSource.push({key: "migrationSize", value: migrationSize})
         }
         if (userAccess == 1) {
             score++
+            dlSource.push({key: "userAccess", value: userAccess})
         }
         if (usingSecurity == 1) {
             score++
+            dlSource.push({key: "usingSecurity", value: usingSecurity})
         }
         this.setState({
             dataLossSources: dlSource,
@@ -239,16 +242,19 @@ class MigrationForm extends Component{
 
     async calculateOverBudgetScore(){
         let {migrationSize, usingSecurity, complianceTypes} = this.state
-        let obSource = {"migrationSize": migrationSize, "usingSecurity": usingSecurity, "complianceTypes": complianceTypes}
+        let obSource = []// {"migrationSize": migrationSize, "usingSecurity": usingSecurity, "complianceTypes": complianceTypes}
         let score = 0
         if (migrationSize >= 100) {
             score++
+            obSource.push({key: "migrationSize", value: migrationSize})
         }
         if (!complianceTypes.includes("7")) {
             score++
+            obSource.push({key: "complianceTypes", value: complianceTypes})
         }
         if (usingSecurity == 1) {
             score++
+            obSource.push({key: "usingSecurity", value: usingSecurity})
         }
         this.setState({
             overBudgetSources: obSource,
@@ -259,32 +265,37 @@ class MigrationForm extends Component{
 
     async calculateOverTimeScore(){
         let {migrationSize, usingSecurity, complianceTypes, userAccess, protocolType, networkSpeed} = this.state
-        let otSource = {"migrationSize": migrationSize, "usingSecurity": usingSecurity, "complianceTypes": complianceTypes, "userAccess":userAccess, "protocolType":protocolType, "networkSpeed": networkSpeed}
+        let otSource = []//{"migrationSize": migrationSize, "usingSecurity": usingSecurity, "complianceTypes": complianceTypes, "userAccess":userAccess, "protocolType":protocolType, "networkSpeed": networkSpeed}
         let score = 0
         if (migrationSize >= 100) {
             score++
+            otSource.push({key: "migrationSize", value: migrationSize})
         }
         if (!complianceTypes.includes("7")) {
             score++
+            otSource.push({key: "complianceTypes", value: complianceTypes})
         }
         if (usingSecurity == 1) {
             score++
+            otSource.push({key: "usingSecurity", value: usingSecurity})
         }
         if (userAccess == 1) {
             score++
+            otSource.push({key: "userAccess", value: userAccess})
         }
         if (protocolType == 3) {
             score++
+            otSource.push({key: "protocolType", value: protocolType})
         }
         if (networkSpeed < 3) {
             score++
+            otSource.push({key: "networkSpeed", value: networkSpeed})
         }
         this.setState({
             overTimeSources: otSource,
             overTimeScore: score
         })
         console.log("Done Calculating OverTime Score")
-
     }
 
     //compSource = [{key:"complianceTypes", value:complianceTypes}, {"userAccess": userAccess}, {"usingSecurity": usingSecurity}]
@@ -292,46 +303,57 @@ class MigrationForm extends Component{
     async generateComplianceBlurb(){
         let {complianceSources} = this.state
         let complianceObjects = ReportBlurbs.find(blurb => blurb.id == "compliance").blurbs
-        let finalBlurb = "Compliance \n\n"
+        let finalBlurb = "<br/><br/>Compliance<br/><br/>"
         console.log(complianceObjects)
 
         complianceSources.forEach(source => {
             let blurbObj = complianceObjects.find(blurb => blurb.triggerType == source.key)
             finalBlurb += blurbObj.excerpt
-
-
-            //we do our checking when we generate compliance sources so not sure this is necessary
-            /*if (source.key == "complianceTypes"){
-                for (let i = 0; i < blurbObj.triggerValue.length; i++){
-                    if (!source.value.includes(blurbObj.triggerValue[i])){
-                        finalBlurb += blurbObj.excerpt
-                        break;
-                    }
-                }
-            } else {
-                if (blurbObj.triggerValue == source.value)
-                    finalBlurb += blurbObj.excerpt
-            }*/
         })
-        
-
-        //
-        //let html = ReportBlurbs.filter(blurb => blurb.id == "compliance").reduce(blurb =>  "")
-        //alert(finalBlurb)
 
         return finalBlurb
     }
 
     async generateDataLossBlurb(){
-        alert("data Loss")
+        let {dataLossSources} = this.state
+        let dataLossObjects = ReportBlurbs.find(blurb => blurb.id == "dataLoss").blurbs
+        let finalBlurb = "<br/><br/>Data Loss<br/><br/>"
+        console.log(dataLossObjects)
+
+        dataLossSources.forEach(source => {
+            let blurbObj = dataLossObjects.find(blurb => blurb.triggerType == source.key)
+            finalBlurb += blurbObj.excerpt
+        })
+
+        return finalBlurb
     }
 
     async generateOverBudgetBlurb(){
-        alert("over budget")
+        let {overBudgetSources} = this.state
+        let overBudgetObjects = ReportBlurbs.find(blurb => blurb.id == "overBudget").blurbs
+        let finalBlurb = "<br/><br/>Over Budget<br/><br/>"
+        console.log(overBudgetObjects)
+
+        overBudgetSources.forEach(source => {
+            let blurbObj = overBudgetObjects.find(blurb => blurb.triggerType == source.key)
+            finalBlurb += blurbObj.excerpt
+        })
+
+        return finalBlurb
     }
 
     async generateOverTimeBlurb(){
-        alert("over time")
+        let {overTimeSources} = this.state
+        let overTimeObjects = ReportBlurbs.find(blurb => blurb.id == "overTime").blurbs
+        let finalBlurb = "<br/><br/>Over Time<br/><br/>"
+        console.log(overTimeObjects)
+
+        overTimeSources.forEach(source => {
+            let blurbObj = overTimeObjects.find(blurb => blurb.triggerType == source.key)
+            finalBlurb += blurbObj.excerpt
+        })
+
+        return finalBlurb
     }
 
     async generateReport(){
