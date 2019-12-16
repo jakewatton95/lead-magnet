@@ -413,7 +413,7 @@ class MigrationForm extends Component{
             const fullURL = "https://ffmn88dla3.execute-api.us-east-1.amazonaws.com/dev/vulnemail?email=" + userEmail            
             fetch(fullURL, urlObj)
             .then(response => {
-                //this.nextSlide()
+                this.nextSlide()
             })
             .catch(err => {
                 console.log("ERR: " + err)
