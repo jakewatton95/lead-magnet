@@ -13,7 +13,14 @@ import NetworkUtilComp from '../components/NetworkUtilComp'
 import UserAccessComp from '../components/UserAccessComp'
 import EmailEntryComp from '../components/EmailEntryComp'
 import FinalSlideComp from '../components/FinalSlideComp'
+import ComplianceList from '../data/complianceList'
 import ReportBlurbs from '../data/reportGenerationData'
+import Blurb from '../data/htmlTemplates/single_blurb'
+import HtmlModule from '../data/htmlTemplates/full_module'
+import ModuleHigh from '../data/htmlTemplates/single_module_high'
+import ModuleMedium from '../data/htmlTemplates/single_module_medium'
+import ModuleLow from '../data/htmlTemplates/single_module_low'
+import ModuleEx from '../data/htmlTemplates/module_ex'
 import './MigrationForm.css'
 
 class MigrationForm extends Component{
@@ -40,6 +47,11 @@ class MigrationForm extends Component{
             overTimeSources: [],
             overBudgetSources: [],
             complianceSources: [],
+            blurbOrder:[],
+            complianceBlurbs: [],
+            dataLossBlurbs: [],
+            overTimeBlurbs: [],
+            overBudgetBlurbs: []
         }
         this.handleChange = this.handleChange.bind(this)
         this.handleModalClose = this.handleModalClose.bind(this)
@@ -58,6 +70,8 @@ class MigrationForm extends Component{
         this.generateDataLossBlurb = this.generateDataLossBlurb.bind(this)
         this.generateOverBudgetBlurb = this.generateOverBudgetBlurb.bind(this)
         this.generateOverTimeBlurb = this.generateOverTimeBlurb.bind(this)
+        this.createHtmlReport = this.createHtmlReport.bind(this)
+        this.generateModule = this.generateModule.bind(this)
     }
 
     handleModalClose(){
@@ -213,8 +227,6 @@ class MigrationForm extends Component{
             complianceSources: compSource,
             complianceScore: score
         })
-        console.log("Done Calculating Compliance Score")
-
     }
 
     async calculateDataLossScore(){
@@ -237,7 +249,6 @@ class MigrationForm extends Component{
             dataLossSources: dlSource,
             dataLossScore: score
         })
-        console.log("Done Calculating DataLoss Score")
     }
 
     async calculateOverBudgetScore(){
@@ -260,7 +271,6 @@ class MigrationForm extends Component{
             overBudgetSources: obSource,
             overBudgetScore: score
         })
-        console.log("Done Calculating OverBudget Score")
     }
 
     async calculateOverTimeScore(){
@@ -295,90 +305,203 @@ class MigrationForm extends Component{
             overTimeSources: otSource,
             overTimeScore: score
         })
-        console.log("Done Calculating OverTime Score")
     }
 
-    //compSource = [{key:"complianceTypes", value:complianceTypes}, {"userAccess": userAccess}, {"usingSecurity": usingSecurity}]
-    //
     async generateComplianceBlurb(){
-        let {complianceSources} = this.state
+        let {complianceSources, complianceTypes} = this.state
         let complianceObjects = ReportBlurbs.find(blurb => blurb.id == "compliance").blurbs
-        let finalBlurb = "<br/><br/>Compliance<br/><br/>"
-        console.log(complianceObjects)
+        let compBlurbs = []
+        let complianceString = ''
+        let numCompliances = 0
+
+        complianceTypes.forEach((val) => {
+            if (parseInt(val) <= 4) {
+                complianceString += ("-" + ComplianceList.find(comp => comp.id == val).name)
+                numCompliances++
+            }
+        })
+        complianceString = complianceString.replace("-", "")
+        numCompliances--
+        for(numCompliances; numCompliances > 0; numCompliances--){
+            if (numCompliances == 1) 
+                complianceString = complianceString.replace("-", " and ")
+            else 
+                complianceString = complianceString.replace("-", ", ")
+        }
 
         complianceSources.forEach(source => {
             let blurbObj = complianceObjects.find(blurb => blurb.triggerType == source.key)
-            finalBlurb += blurbObj.excerpt
+            compBlurbs.push({title: blurbObj.title, excerpt: blurbObj.excerpt.replace(/%compliance_type%/g, complianceString)})
         })
 
-        return finalBlurb
+        this.setState({
+            complianceBlurbs: compBlurbs
+        })
     }
 
     async generateDataLossBlurb(){
         let {dataLossSources} = this.state
         let dataLossObjects = ReportBlurbs.find(blurb => blurb.id == "dataLoss").blurbs
-        let finalBlurb = "<br/><br/>Data Loss<br/><br/>"
-        console.log(dataLossObjects)
-
+        let dlBlurbs = []
         dataLossSources.forEach(source => {
             let blurbObj = dataLossObjects.find(blurb => blurb.triggerType == source.key)
-            finalBlurb += blurbObj.excerpt
+            dlBlurbs.push({title: blurbObj.title, excerpt: blurbObj.excerpt})
         })
 
-        return finalBlurb
+        this.setState({dataLossBlurbs: dlBlurbs})
     }
 
     async generateOverBudgetBlurb(){
-        let {overBudgetSources} = this.state
+        let {overBudgetSources, complianceTypes} = this.state
         let overBudgetObjects = ReportBlurbs.find(blurb => blurb.id == "overBudget").blurbs
-        let finalBlurb = "<br/><br/>Over Budget<br/><br/>"
-        console.log(overBudgetObjects)
+        let obBlurbs = []
+        let complianceString = ''
+        let numCompliances = 0
+
+        complianceTypes.forEach((val) => {
+            if (parseInt(val) <= 4) {
+                complianceString += ("-" + ComplianceList.find(comp => comp.id == val).name)
+                numCompliances++
+            }
+        })
+        complianceString = complianceString.replace("-", "")
+        numCompliances--
+        for(numCompliances; numCompliances > 0; numCompliances--){
+            if (numCompliances == 1) 
+                complianceString = complianceString.replace("-", " and ")
+            else 
+                complianceString = complianceString.replace("-", ", ")
+        }
+
 
         overBudgetSources.forEach(source => {
             let blurbObj = overBudgetObjects.find(blurb => blurb.triggerType == source.key)
-            finalBlurb += blurbObj.excerpt
+            obBlurbs.push({title:blurbObj.title, excerpt:blurbObj.excerpt.replace(/%compliance_type%/g, complianceString)})
         })
 
-        return finalBlurb
+        this.setState({overBudgetBlurbs:obBlurbs})
     }
 
     async generateOverTimeBlurb(){
         let {overTimeSources} = this.state
         let overTimeObjects = ReportBlurbs.find(blurb => blurb.id == "overTime").blurbs
-        let finalBlurb = "<br/><br/>Over Time<br/><br/>"
-        console.log(overTimeObjects)
+        let otBlurbs = []
 
         overTimeSources.forEach(source => {
             let blurbObj = overTimeObjects.find(blurb => blurb.triggerType == source.key)
-            finalBlurb += blurbObj.excerpt
+            otBlurbs.push({title:blurbObj.title, excerpt:blurbObj.excerpt})
         })
 
-        return finalBlurb
+        this.setState({overTimeBlurbs:otBlurbs})
+    }
+
+    async generateModule(blurb, severity){
+        let {complianceBlurbs, dataLossBlurbs, overBudgetBlurbs, overTimeBlurbs} = this.state
+        let mod = ''
+        if (severity == "high"){
+            mod = ModuleHigh
+        } else if (severity == "medium") {
+            mod = ModuleMedium
+        } else if (severity == "low"){
+            mod = ModuleLow
+        }
+        if (blurb == "compliance"){
+            mod = mod.replace("%title%", "Compliance")
+            for (let i = 0; i < complianceBlurbs.length; i++){
+                let blurbstr = "%blurb" + (i+1) + "%"
+                mod = mod.replace(blurbstr, Blurb.replace("%blurb_title%", complianceBlurbs[i].title).replace("%blurb_excerpt%", complianceBlurbs[i].excerpt))
+            }
+            for (let i = complianceBlurbs.length; i<6; i ++) {
+                let blurbstr = "%blurb" + (i+1) + "%"
+                mod = mod.replace(blurbstr, '')
+            }
+        } else if (blurb == "dataLoss"){
+            mod = mod.replace("%title%", "Data Loss")
+            for (let i = 0; i < dataLossBlurbs.length; i++){
+                let blurbstr = "%blurb" + (i+1) + "%"
+                mod = mod.replace(blurbstr, Blurb.replace("%blurb_title%", dataLossBlurbs[i].title).replace("%blurb_excerpt%", dataLossBlurbs[i].excerpt))
+            }
+            for (let i = dataLossBlurbs.length; i<6; i ++) {
+                let blurbstr = "%blurb" + (i+1) + "%"
+                mod = mod.replace(blurbstr, '')
+            }            
+        } else if (blurb == "overTime"){
+            mod = mod.replace("%title%", "Over Time")
+            for (let i = 0; i <overTimeBlurbs.length; i++){
+                let blurbstr = "%blurb" + (i+1) + "%"
+                mod = mod.replace(blurbstr, Blurb.replace("%blurb_title%", overTimeBlurbs[i].title).replace("%blurb_excerpt%", overTimeBlurbs[i].excerpt))
+            }
+            for (let i = overTimeBlurbs.length; i<6; i ++) {
+                let blurbstr = "%blurb" + (i+1) + "%"
+                mod = mod.replace(blurbstr, '')
+            } 
+        } else if (blurb == "overBudget"){
+            mod = mod.replace("%title%", "Over Budget")
+            for (let i = 0; i < overBudgetBlurbs.length; i++){
+                let blurbstr = "%blurb" + (i+1) + "%"
+                mod = mod.replace(blurbstr, Blurb.replace("%blurb_title%", overBudgetBlurbs[i].title).replace("%blurb_excerpt%", overBudgetBlurbs[i].excerpt))
+            }
+            for (let i = overBudgetBlurbs.length; i<6; i ++) {
+                let blurbstr = "%blurb" + (i+1) + "%"
+                mod = mod.replace(blurbstr, '')
+            }             
+        }
+        return mod
+    }
+
+    async createHtmlReport(blurbOrder){
+        let html = HtmlModule
+        for (let i = 0; i < blurbOrder.length; i++)
+        {
+            if (i == 0){
+                html = html.replace("%module_high%", await this.generateModule(blurbOrder[i], "high"))
+            } else if (i == 1) {
+                html = html.replace("%module_medium%", await this.generateModule(blurbOrder[i], "medium"))
+            } else if (i == 2) {
+                html = html.replace("%module_low%", await this.generateModule(blurbOrder[i], "low"))
+            }
+        }
+        for (let i = blurbOrder.length; i < 3; i++)
+        {
+            if (i == 0){
+                html = html.replace("%module_high%", '')
+            } else if (i == 1) {
+                html = html.replace("%module_medium%", '')
+            } else if (i == 2) {
+                html = html.replace("%module_low%", '')
+            }
+        }
+        return html
     }
 
     async generateReport(){
-        let {complianceTypes, complianceScore, dataLossScore, overBudgetScore, overTimeScore} = this.state
+        let { complianceTypes, complianceScore, dataLossScore, overBudgetScore, overTimeScore} = this.state
+        let blurbOrder = []
         let html = "<h1>Your Vulnerability Report</h1>\n"
         if (complianceScore > 1 || !(complianceTypes.includes("7") || complianceTypes.includes("6"))){
-            html += await this.generateComplianceBlurb()
-            //add Compliance Blurb
+            blurbOrder.push("compliance")
+            await this.generateComplianceBlurb()
         }
         if (dataLossScore > 1) {
-            html += await this.generateDataLossBlurb()
-            //add Data Loss Blurb
-        }
-        if (overBudgetScore > 1) {
-            html += await this.generateOverBudgetBlurb()
-            //add Over Budget Blurb
+            blurbOrder.push("dataLoss")
+            await this.generateDataLossBlurb()
         }
         if (overTimeScore > 2) {
-            html += await this.generateOverTimeBlurb()
-            //add Over Time Blurb
+            blurbOrder.push("overTime")
+            await this.generateOverTimeBlurb()
+        }
+        if (overBudgetScore > 1) {
+            if (blurbOrder.length == 3){
+                if (Math.random() < 0.5) {
+                    blurbOrder[2] = ("overBudget")
+                }
+            } else {
+                blurbOrder.push("overBudget")
+            }
+            await this.generateOverBudgetBlurb()
         }
 
-        this.setState({
-            htmlReport: html
-        })
+        this.setState({htmlReport: await this.createHtmlReport(blurbOrder)}) 
     }
 
     async submitAnswers(){
@@ -387,9 +510,7 @@ class MigrationForm extends Component{
             await this.calculateDataLossScore()
             await this.calculateComplianceScore()
             await this.calculateOverTimeScore()
-            await this.calculateOverBudgetScore()
-            console.log(this.state)
-            console.log("ScoresShouldBeCalculated")            
+            await this.calculateOverBudgetScore()         
             //generate report
             this.generateReport()
         }
@@ -407,9 +528,9 @@ class MigrationForm extends Component{
     submitEmail(){
         //send email
         let {htmlReport, userEmail} = this.state
+        //let newMod = HtmlModule.replace("%module_high%", ModuleHigh.replace("%blurb1%", Blurb).replace("%blurb2%", Blurb).replace("%blurb3%", Blurb)).replace("%module_medium%", ModuleMedium).replace("%module_low%", ModuleLow)
         if (this.validateEmail()){
             let urlObj = {method: "POST", body: JSON.stringify({html: htmlReport})}
-            console.log(urlObj)
             const fullURL = "https://ffmn88dla3.execute-api.us-east-1.amazonaws.com/dev/vulnemail?email=" + userEmail            
             fetch(fullURL, urlObj)
             .then(response => {
@@ -453,7 +574,6 @@ class MigrationForm extends Component{
                     {slideNumber == 11 && <Button variant = "success" onClick = {this.submitEmail}> Get My Results!</Button>}
                 </Modal.Footer>
             </Modal>
-            <div> {this.state.htmlReport}</div>
         </React.Fragment>
         )
     }
