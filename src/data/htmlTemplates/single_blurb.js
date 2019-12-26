@@ -6,7 +6,7 @@ let blurb = "<th class='pc-sm-mw-50pc pc-xs-mw-100pc' style='display: inline-blo
         <table border='0' cellpadding='0' cellspacing='0' width='100%' role='presentation'>\
           <tbody>\
             <tr>\
-              <td class='pc-fb-font' style='font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; line-height: 24px; letter-spacing: -0.2px; color: #1B1B1B;' valign='top'>\
+              <td class='pc-fb-font' style='font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; line-height: 24px; letter-spacing: -0.2px;' valign='top'>\
                 %blurb_title%\
               </td>\
             </tr>\
@@ -16,7 +16,7 @@ let blurb = "<th class='pc-sm-mw-50pc pc-xs-mw-100pc' style='display: inline-blo
           </tbody>\
           <tbody>\
             <tr>\
-              <td class='pc-fb-font' style='font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 20px; letter-spacing: -0.2px; color: #9B9B9B;' valign='top'>\
+              <td class='pc-fb-font' style='font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 20px; letter-spacing: -0.2px;' valign='top'>\
                 %blurb_excerpt%\
               </td>\
             </tr>\

@@ -331,7 +331,7 @@ class MigrationForm extends Component{
 
         complianceSources.forEach(source => {
             let blurbObj = complianceObjects.find(blurb => blurb.triggerType == source.key)
-            compBlurbs.push({title: blurbObj.title, excerpt: blurbObj.excerpt.replace(/%compliance_type%/g, complianceString)})
+            compBlurbs.push({title: blurbObj.title.replace(/%compliance_type%/, complianceString), excerpt: blurbObj.excerpt.replace(/%compliance_type%/g, complianceString)})
         })
 
         this.setState({
@@ -345,7 +345,7 @@ class MigrationForm extends Component{
         let dlBlurbs = []
         dataLossSources.forEach(source => {
             let blurbObj = dataLossObjects.find(blurb => blurb.triggerType == source.key)
-            dlBlurbs.push({title: blurbObj.title, excerpt: blurbObj.excerpt})
+            dlBlurbs.push({title: blurbObj.title, excerpt: blurbObj.excerpt.replace(/%size%/, this.state.migrationSize)})
         })
 
         this.setState({dataLossBlurbs: dlBlurbs})
@@ -376,20 +376,37 @@ class MigrationForm extends Component{
 
         overBudgetSources.forEach(source => {
             let blurbObj = overBudgetObjects.find(blurb => blurb.triggerType == source.key)
-            obBlurbs.push({title:blurbObj.title, excerpt:blurbObj.excerpt.replace(/%compliance_type%/g, complianceString)})
+            obBlurbs.push({title:blurbObj.title.replace(/%compliance_type%/, complianceString), excerpt:blurbObj.excerpt.replace(/%compliance_type%/g, complianceString)})
         })
 
         this.setState({overBudgetBlurbs:obBlurbs})
     }
 
     async generateOverTimeBlurb(){
-        let {overTimeSources} = this.state
+        let {overTimeSources, complianceTypes} = this.state
         let overTimeObjects = ReportBlurbs.find(blurb => blurb.id == "overTime").blurbs
         let otBlurbs = []
+        let complianceString = ''
+        let numCompliances = 0
+
+        complianceTypes.forEach((val) => {
+            if (parseInt(val) <= 4) {
+                complianceString += ("-" + ComplianceList.find(comp => comp.id == val).name)
+                numCompliances++
+            }
+        })
+        complianceString = complianceString.replace("-", "")
+        numCompliances--
+        for(numCompliances; numCompliances > 0; numCompliances--){
+            if (numCompliances == 1) 
+                complianceString = complianceString.replace("-", " and ")
+            else 
+                complianceString = complianceString.replace("-", ", ")
+        }
 
         overTimeSources.forEach(source => {
             let blurbObj = overTimeObjects.find(blurb => blurb.triggerType == source.key)
-            otBlurbs.push({title:blurbObj.title, excerpt:blurbObj.excerpt})
+            otBlurbs.push({title:blurbObj.title.replace(/%compliance_type%/, complianceString), excerpt:blurbObj.excerpt.replace(/%size%/, this.state.migrationSize)})
         })
 
         this.setState({overTimeBlurbs:otBlurbs})

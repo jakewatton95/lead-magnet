@@ -2,7 +2,7 @@ let htmlString = "<!-- BEGIN MODULE: Feature 2 -->\
 <table border='0' cellpadding='0' cellspacing='0' width='100%' role='presentation'>\
         <tbody>\
           <tr>\
-            <td class='pc-sm-p-35-10-15 pc-xs-p-25-0-5' style='padding: 40px 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);' valign='top' bgcolor='#ffffff'>\
+            <td class='pc-sm-p-35-10-15 pc-xs-p-25-0-5' style='padding: 40px 20px; background-image: url(\"https://lead-magnet-media.s3.amazonaws.com/green-background.png\"); background-color: #76c7ae; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);' valign='top' bgcolor='#ffffff'>\
               <table border='0' cellpadding='0' cellspacing='0' width='100%' role='presentation'>\
                 <tbody>\
                   <tr>\
@@ -28,7 +28,7 @@ let htmlString = "<!-- BEGIN MODULE: Feature 2 -->\
                   <tr>\
                     <td style='font-size: 0;' valign='top'>\
                       <!--[if (gte mso 9)|(IE)]><table width='100%' border='0' cellspacing='0' cellpadding='0' role='presentation'><tr><td width='33%' valign='top'><![endif]-->\
-                    <table><tbody><tr>\
+                    <table><tbody><tr style='color: white'>\
                      %blurb1%\
                      %blurb2%\
                      %blurb3%\

@@ -94,11 +94,25 @@ let htmlModule = "<head>\
                     </tr>\
                   </tbody>\
                 </table>\
+                <table border-spacing='0'width='100%' border='0' cellpadding='0' cellspacing='0' role='presentation'>\
+                <tbody>\
+                  <tr>\
+                    <td><img style='display: block' width='100%' src='https://lead-magnet-media.s3.amazonaws.com/headerimg.png'></td>\
+                  </tr>\
+                </tbody>\
+                </table>\
+                <table width='100%' border='0' cellpadding='0' cellspacing='0' role='presentation'>\
+                <tbody>\
+                  <tr>\
+                    <td><img style='display: block' width='100%' src='https://lead-magnet-media.s3.amazonaws.com/triangles_black_green.png'></td>\
+                  </tr>\
+                </tbody>\
+                </table>\
                 %module_high%\
                 <table width='100%' border='0' cellpadding='0' cellspacing='0' role='presentation'>\
                   <tbody>\
                     <tr>\
-                      <td height='20' style='font-size: 1px; line-height: 1px;'>&nbsp;</td>\
+                      <td><img style='display: block' width='100%' src='https://lead-magnet-media.s3.amazonaws.com/triangles_green_black.png'></td>\
                     </tr>\
                   </tbody>\
                 </table>\
@@ -106,7 +120,7 @@ let htmlModule = "<head>\
                 <table width='100%' border='0' cellpadding='0' cellspacing='0' role='presentation'>\
                   <tbody>\
                     <tr>\
-                      <td height='20' style='font-size: 1px; line-height: 1px;'>&nbsp;</td>\
+                      <td><img style='display: block' width='100%' cellpadding='0' cellspacing='0' src='https://lead-magnet-media.s3.amazonaws.com/triangles_black_green.png'></td>\
                     </tr>\
                   </tbody>\
                 </table>\
