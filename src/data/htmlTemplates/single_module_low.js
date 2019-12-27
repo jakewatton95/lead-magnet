@@ -6,7 +6,7 @@ let htmlString = "<!-- BEGIN MODULE: Feature 2 -->\
               <table border='0' cellpadding='0' cellspacing='0' width='100%' role='presentation'>\
                 <tbody>\
                   <tr>\
-                    <td class='pc-fb-font' style='font-family: Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; line-height: 34px; letter-spacing: -0.4px; color: #151515; padding: 0 20px;' valign='top'>\
+                    <td class='pc-fb-font' style='font-family: Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; line-height: 34px; letter-spacing: -0.4px; color: white; padding: 0 20px;' valign='top'>\
                         %title%\
                     </td>\
                   </tr>\

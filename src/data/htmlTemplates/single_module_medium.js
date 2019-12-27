@@ -28,7 +28,7 @@ let htmlString = "<!-- BEGIN MODULE: Feature 2 -->\
                   <tr>\
                     <td style='font-size: 0;' valign='top'>\
                       <!--[if (gte mso 9)|(IE)]><table width='100%' border='0' cellspacing='0' cellpadding='0' role='presentation'><tr><td width='33%' valign='top'><![endif]-->\
-                    <table><tbody><tr style='color: #9b9b9b'>\
+                    <table><tbody><tr>\
                      %blurb1%\
                      %blurb2%\
                      %blurb3%\
